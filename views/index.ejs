@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Game - Get Points for Correct Answer</title>
+  <link href="assets/style.css" type="text/css" rel="stylesheet" />
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js" ></script>
+
+</head>
+<body>
+  <div class="hero-unit">
+  <h2>Add Numbers Show your Math Skills</h2>
+  <br>
+  <div class="sidekick">
+  <h3>Add Random Numbers</h3>
+  <br><label for="number1">Number1:</label><input type="text" id="number1" value=""></input>
+  <br><label for="number1">Number2:</label><input type="text" id="number2" value=""></input>
+
+  <br><br><button id="generate" onclick="App.generateRandom()">Generate Numbers</button>
+  <br><label for="yourres">Answer:</label><input type="text" id="yourres" value=""></input>
+  <br><br><button id="submit" onclick="App.checkResult()">Check Result</button>
+  <br><br><p id="quizresult"></p>
+
+  <br><br><button id="playAgain" onclick="App.playAgain()">Play Again</button>
+
+
+  <br><br><button id="submit" onclick="App.getPoints()">Get Points</button><br><p id="renderPoints"></p>
+
+  </div>
+
+  <br>
+  <br>
+  <div id="newPlayer" class="sidekick">
+  <h3>Add Player Info</h3>
+  <br><label for="age">Age:</label><input type="text" id="age" value=""></input>
+  <br><label for="name">Name:</label><input type="text" id="name" value=""></input>
+
+  <br><br><button id="addPlayerBtn" onclick="App.addPlayer()">Add Me</button>
+  </div>
+
+
+
+</div>
+
+
+  <script type="text/javascript">
+    window.App = {
+
+    generateRandom: function() {
+      const min = 100;
+      const max = 900;
+
+      console.log("inside generate random function ", min, max);
+
+      let no1 = Math.ceil(Math.random() * (max - min) + min);
+      let no2 = Math.floor(Math.random() * (max - min) + min);
+
+      console.log(no1," ",no2);
+
+      document.getElementById("number1").value = no1;
+      document.getElementById("number2").value = no2;
+      return true;
+    },
+
+
+    playAgain : function(){
+      $("#number1").val("");
+      $("#number2").val("");
+      $("#yourres").val("");
+      $("#quizresult").hide();
+    },
+
+    checkResult : function(){
+          var no1 = $("#number1").val();  
+          var no2 = $("#number2").val();
+          var ans = $("#yourres").val();
+
+          console.log(no1," ",no2, " ",ans);  
+          var data_ = {  
+              no1: no1,  
+              no2: no2,
+              ans: ans
+          };
+          
+          console.log(JSON.stringify(data_));
+         
+          $.ajax({  
+              type: "POST",  
+              url: "http://localhost:3000/calculateResult",  
+              data: JSON.stringify(data_),  
+              contentType: "application/json"  
+          }).done(function(data) {
+              $("#quizresult").html(data);  
+              console.log("ajax completed", data);  
+          }).fail(function(data) {  
+              console.log("error occured", data);
+              $("#quizresult").html(data);   
+          });  
+      
+  },//getResults end
+
+  getPoints : function() {
+    $.get("http://localhost:3000/getPoints", function(data, status){
+        $("#renderPoints").html(data);
+        console.log("Data: " + data + "\n Status: " + status);
+    });
+  },
+
+
+  addPlayer : function() {
+          var age = $("#age").val();  
+          var name = $("#name").val();
+        
+          console.log(age," ",name);  
+          var data_ = {  
+              age: age,  
+              name: name,
+          };
+          
+          console.log(JSON.stringify(data_));
+         
+          $.ajax({  
+              type: "POST",  
+              url: "http://localhost:3000/addPlayer",  
+              data: JSON.stringify(data_),  
+              contentType: "application/json"  
+          }).done(function(data) {  
+              console.log("ajax completed", data);
+              $("#newPlayer").hide(); 
+          }).fail(function(data) {  
+              console.log("error occured", data);  
+          });  
+  }
+
+
+} //window.App ends
+  
+  
+  
+window.addEventListener('load', function() {
+    console.log("dom loaded");
+});
+</script>
+
+</div> 
+</body>
+</html>
